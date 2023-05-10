@@ -4,27 +4,42 @@ import { useDrag, useDrop } from 'react-dnd'
 export default function ListCard({ item, index, moveListItem }) {
 
     const [{ isDragging }, dragRef] = useDrag({
-        type: 'item',
-        item: index,
+        type: 'card',
+        item: () => {
+            return { id: item.id, index }
+          },
         collect: (monitor) => ({
             isDragging: monitor.isDragging()
         })
     })
 
     const [spec, dropRef] = useDrop({
-        accept: 'item',
+        accept: 'card',
+        collect(monitor) {
+            return {
+                handlerId: monitor.getHandlerId(),
+            }
+        },
         hover: (item, monitor) => {
+            if (!ref.current) {
+            return
+            }
             const dragIndex = item.index
             const hoverIndex = index
+            if (dragIndex === hoverIndex) {
+            return
+            }
             const hoverBoundingRect = ref.current?.getBoundingClientRect()
-            const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
-            const hoverActualY = monitor.getClientOffset().y - hoverBoundingRect.top
-
-            // if dragging down, continue only when hover is smaller than middle Y
-            if (dragIndex < hoverIndex && hoverActualY < hoverMiddleY) return
-            // if dragging up, continue only when hover is bigger than middle Y
-            if (dragIndex > hoverIndex && hoverActualY > hoverMiddleY) return
-
+            const hoverMiddleY =
+            (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+            const clientOffset = monitor.getClientOffset()
+            const hoverClientY = clientOffset.y - hoverBoundingRect.top
+            if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+            return
+            }
+            if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+            return
+            }
             moveListItem(dragIndex, hoverIndex)
             item.index = hoverIndex
         },
