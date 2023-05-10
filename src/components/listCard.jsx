@@ -1,11 +1,11 @@
 import React, { useRef } from "react"
 import { useDrag, useDrop } from 'react-dnd' 
 
-export default function ListCard({ item, moveListItem }) {
+export default function ListCard({ item, index, moveListItem }) {
 
     const [{ isDragging }, dragRef] = useDrag({
-        type: 'card',
-        item: item,
+        type: 'item',
+        item: index,
         collect: (monitor) => ({
             isDragging: monitor.isDragging()
         })

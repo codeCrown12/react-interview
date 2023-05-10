@@ -66,7 +66,7 @@ const AdminDashboardPage = () => {
     }
   }
 
-  const listItems = data.map(item => <ListCard moveListItem={moveListItem} item={item} key={item.id} />)
+  const listItems = data.map((item, index) => <ListCard index={index} moveListItem={moveListItem} item={item} key={item.id} />)
 
   return (
     <>
