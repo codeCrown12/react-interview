@@ -15,6 +15,13 @@ export default function MkdSDK() {
   
   this.login = async function (email, password, role) {
     //TODO
+    const payload = {
+      email,
+      password,
+      role
+    }
+    const response = await this.callRestAPI(payload, "LOGIN")
+    return response
   };
 
   this.getHeader = function () {
@@ -81,6 +88,40 @@ export default function MkdSDK() {
           throw new Error(jsonPaginate.message);
         }
         return jsonPaginate;
+      
+      case "LOGIN":
+        const loginResponse = await fetch(
+          this._baseurl + `/v2/api/lambda/login`,
+          {
+            method: "post",
+            headers: header,
+            body: JSON.stringify(payload),
+          }
+        );
+        const jsonLoginResponse = await loginResponse.json()
+
+        if (loginResponse.status === 401) {
+          throw new Error(jsonLoginResponse.message);
+        }
+
+        if (loginResponse.status === 403) {
+          throw new Error(jsonLoginResponse.message);
+        }
+        return jsonLoginResponse;
+      
+      case "CHECK":
+        const checkResponse = await fetch(
+          this._baseurl + `/v2/api/lambda/check`,
+          {
+            method: "post",
+            headers: header,
+            body: JSON.stringify(payload),
+          }
+        )
+        if (checkResponse.status === 200) {
+          return false
+        }
+        return true
       default:
         break;
     }
@@ -88,7 +129,22 @@ export default function MkdSDK() {
 
   this.check = async function (role) {
     //TODO
+    const payload = {
+      role
+    }
+    const response = await this.callRestAPI(payload, "CHECK")
+    return response
   };
+
+  this.getData = async function (page, limit) {
+    this.setTable('video')
+    const payload = {
+      page,
+      limit
+    }
+    const response = await this.callRestAPI(payload, "PAGINATE")
+    return response
+  }
 
   return this;
 }

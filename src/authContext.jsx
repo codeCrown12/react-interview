@@ -14,8 +14,15 @@ const reducer = (state, action) => {
   switch (action.type) {
     case "LOGIN":
       //TODO
+      localStorage.setItem("user", action.payload.user_id);
+      localStorage.setItem("token", action.payload.token);
+      localStorage.setItem("role", action.payload.role);
       return {
         ...state,
+        isAuthenticated: true,
+        user: action.payload.user_id,
+        token: action.payload.token,
+        role: action.payload.role
       };
     case "LOGOUT":
       localStorage.clear();
@@ -23,6 +30,8 @@ const reducer = (state, action) => {
         ...state,
         isAuthenticated: false,
         user: null,
+        token: null,
+        role: null
       };
     default:
       return state;
@@ -35,7 +44,7 @@ export const tokenExpireError = (dispatch, errorMessage) => {
   const role = localStorage.getItem("role");
   if (errorMessage === "TOKEN_EXPIRED") {
     dispatch({
-      type: "Logout",
+      type: "LOGOUT",
     });
     window.location.href = "/" + role + "/login";
   }
@@ -46,6 +55,14 @@ const AuthProvider = ({ children }) => {
 
   React.useEffect(() => {
     //TODO
+    const checkToken = async () => {
+      const role = localStorage.getItem("role");
+      const isExpired = await sdk.check(role);
+      if(isExpired) {
+        tokenExpireError(dispatch, "TOKEN_EXPIRED");
+      }
+    }
+    checkToken()
   }, []);
 
   return (
