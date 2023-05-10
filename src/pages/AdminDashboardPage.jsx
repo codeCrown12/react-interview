@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { AuthContext } from "../authContext";
 import ListCard from "../components/listCard";
 import { useNavigate } from "react-router";
@@ -27,7 +27,21 @@ const AdminDashboardPage = () => {
 
   useEffect(() => {
     getData()
-  }, [])
+  }, [currentPage])
+
+  const moveListItem = useCallback(
+    (dragIndex, hoverIndex) => {
+        const dragItem = data[dragIndex]
+        const hoverItem = data[hoverIndex]
+        setData(items => {
+            const updatedData = [...data]
+            updatedData[dragIndex] = hoverItem
+            updatedData[hoverIndex] = dragItem
+            return updatedData
+        })
+    },
+  [data],
+)
 
   const { dispatch } = React.useContext(AuthContext)
   const navigate = useNavigate()
@@ -37,26 +51,22 @@ const AdminDashboardPage = () => {
     dispatch({
       type: "LOGOUT"
     })
-    navigate(`/${role}/dashboard`)
+    navigate(`/${role}/login`)
   }
 
   const prevPage = () => {
     if(currentPage > 1) {
       setCurrentPage(page => page - 1)
-      getData()
     }
-    console.log(currentPage)
   }
 
   const nextPage = () => {
     if(currentPage < totalPages) {
       setCurrentPage(page => page + 1)
-      getData()
     }
-    console.log(currentPage)
   }
 
-  const listItems = data.map(item => <ListCard item={item} key={item.id} />)
+  const listItems = data.map(item => <ListCard moveListItem={moveListItem} item={item} key={item.id} />)
 
   return (
     <>
