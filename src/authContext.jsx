@@ -57,9 +57,11 @@ const AuthProvider = ({ children }) => {
     //TODO
     const checkToken = async () => {
       const role = localStorage.getItem("role");
-      const isExpired = await sdk.check(role);
-      if(isExpired) {
-        tokenExpireError(dispatch, "TOKEN_EXPIRED");
+      if(role) {
+        const isExpired = await sdk.check(role);
+        if(isExpired) {
+          tokenExpireError(dispatch, "TOKEN_EXPIRED");
+        }
       }
     }
     checkToken()
